@@ -10,6 +10,7 @@ export default function Home() {
         const res = await fetch(`/api/search?query=${input}`);
         const data = await res.json();
         console.log(data);
+        
         setResults(data.items);
     };
 
