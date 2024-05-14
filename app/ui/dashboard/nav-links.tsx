@@ -19,6 +19,7 @@ const links = [
     icon: DocumentDuplicateIcon,
   },
   { name: 'Customers', href: '/dashboard/customers', icon: UserGroupIcon },
+  { name: 'NaverSearch', href: '/dashboard/naver', icon: UserGroupIcon },
 ];
 
 export default function NavLinks() {
