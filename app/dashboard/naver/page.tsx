@@ -9,8 +9,10 @@ export default function Home() {
     const handleSearch = async () => {
         const res = await fetch(`/api/search?query=${input}`);
         const data = await res.json();
+        console.log("====================");
         console.log(data);
-        
+        console.log(res);
+        console.log("====================");
         setResults(data.items);
     };
 
@@ -19,9 +21,9 @@ export default function Home() {
             <input value={input} onChange={(e) => setInput(e.target.value)} />
             <button onClick={handleSearch}>검색</button>
             <ul>
-                {/* {results.map((item, index) => (
+                {results.map((item, index) => (
                     <li key={index}>{item.title}</li>
-                ))} */}
+                ))}
             </ul>
         </div>
     );

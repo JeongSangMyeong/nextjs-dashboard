@@ -11,7 +11,9 @@ export default async (req, res) => {
             }
         });
         res.status(200).json(data);
+        // console.log(data);
     } catch (error) {
+        console.error('API 호출 에러:', error);
         res.status(500).json({ message: 'API 호출 중 에러가 발생했습니다.', error });
     }
 };
