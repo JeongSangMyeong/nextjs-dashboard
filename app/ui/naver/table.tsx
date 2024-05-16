@@ -1,14 +1,36 @@
-import { parseHTML } from '@/app/lib/utils';
+import { columnsConfig } from '@/app/config/naver-search-column-config';
 
 interface Item {
-    bloggername: string;
-    title: string;
-    description: string;
-    link: string;
-    postdate: string;
+    [key: string]: string; // 모든 키가 문자열 값을 가질 수 있도록 정의
 }
 
-export default function SearchResultsTable({ results, currentPage }: { results: Item[], currentPage: number }) {
+interface SearchResultsTableProps {
+    results: Item[];
+    currentPage: number;
+    apiType: string;
+    display: number;
+}
+
+// date 포맷 함수
+function formatDate(dateString: string): string {
+    if (dateString.length === 8) {
+        const year = dateString.substring(0, 4);
+        const month = dateString.substring(4, 6);
+        const day = dateString.substring(6, 8);
+        return `${year}-${month}-${day}`;
+    } else {
+        const date = new Date(dateString);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+}
+
+
+export default function SearchResultsTable({ results, currentPage, apiType, display }: SearchResultsTableProps) {
+    const columns = columnsConfig[apiType as keyof typeof columnsConfig] || [];
+
     return (
         <div className="mt-6 flow-root">
             <div className="inline-block min-w-full align-middle">
@@ -16,25 +38,39 @@ export default function SearchResultsTable({ results, currentPage }: { results: 
                     <table className="min-w-full table-fixed text-gray-900">
                         <thead className="rounded-lg text-left text-sm font-normal">
                             <tr>
-                                {/* <th scope="col" className="w-1/5 px-4 py-5 font-medium sm:pl-6">블로거 명</th> */}
-                                <th scope="col" className="w-2/6 px-3 py-5 font-medium">Title</th>
-                                <th scope="col" className="w-2/6 px-3 py-5 font-medium">Content</th>
-                                <th scope="col" className="w-2/6 px-3 py-5 font-medium">Link</th>
-                                {/* <th scope="col" className="w-1/5 px-3 py-5 font-medium">작성일</th> */}
+                                {columns.map((col) => (
+                                    <th key={col.key} scope="col" className="px-3 py-5 font-medium">
+                                        {col.label}
+                                    </th>
+                                ))}
                             </tr>
                         </thead>
                         <tbody className="bg-white">
-                            {results.map((item, index) => (
-                                <tr key={index} className="border-b py-3 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg">
-                                    {/* <td className="whitespace-normal py-3 pl-6 pr-3">{item.bloggername}</td> */}
-                                    <td className="whitespace-normal px-3 py-3" dangerouslySetInnerHTML={{ __html: item.title }}></td>
-                                    <td className="whitespace-normal px-3 py-3" dangerouslySetInnerHTML={{ __html: item.description }}></td>
-                                    <td className="whitespace-normal px-3 py-3">
-                                        <a href={item.link} className="text-blue-500 hover:underline" target="_blank" rel="noopener noreferrer">{item.link}</a>
+                            {display === 0 ? (
+                                <tr>
+                                    <td colSpan={columns.length} className="px-3 py-5 text-center text-gray-500">
+                                        조회된 데이터가 없습니다.
                                     </td>
-                                    {/* <td className="whitespace-normal px-3 py-3">{item.postdate}</td> */}
                                 </tr>
-                            ))}
+                            ) : (
+                                results.map((item, index) => (
+                                    <tr key={index} className="border-b py-3 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg">
+                                        {columns.map((col) => (
+                                            <td key={col.key} className="whitespace-normal px-3 py-3">
+                                                {col.key.includes('link') ? (
+                                                    <a href={item[col.key]} className="text-blue-500 hover:underline" target="_blank" rel="noopener noreferrer">{item[col.key]}</a>
+                                                ) : col.key === 'image' ? (
+                                                    <img src={item[col.key]} alt="Thumbnail" width={100} height={100} />
+                                                ) : col.key === 'postdate' || col.key === 'pubDate' || col.key === 'pubdate' ? (
+                                                    formatDate(item[col.key])
+                                                ) : (
+                                                    <span dangerouslySetInnerHTML={{ __html: item[col.key] }}></span>
+                                                )}
+                                            </td>
+                                        ))}
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
                 </div>
