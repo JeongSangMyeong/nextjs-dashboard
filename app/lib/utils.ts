@@ -1,4 +1,5 @@
 import { Revenue } from './definitions';
+import React from 'react';
 
 export const formatCurrency = (amount: number) => {
   return (amount / 100).toLocaleString('en-US', {
@@ -66,4 +67,9 @@ export const generatePagination = (currentPage: number, totalPages: number) => {
     '...',
     totalPages,
   ];
+};
+
+// HTML 변환 함수
+export const parseHTML = (html: string) => {
+  return { __html: html };
 };

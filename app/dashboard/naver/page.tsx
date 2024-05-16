@@ -1,24 +1,60 @@
 "use client";
 
+import { useEffect, useState, useCallback } from 'react';
 import { lusitana } from '@/app/ui/fonts';
-import { Suspense, useState } from 'react';
+import Pagination from '@/app/ui/naver/pagination';
+import SearchResultsTable from '@/app/ui/naver/table'; // 테이블 컴포넌트 임포트
 
 interface Item {
+    bloggername: string;
     title: string;
+    description: string;
+    link: string;
+    postdate: string;
+}
+
+interface SearchResults {
+    items: Item[];
+    total: number;
+    start: number;
 }
 
 export default function Home() {
     const [input, setInput] = useState('');
     const [results, setResults] = useState<Item[]>([]);
+    const [total, setTotal] = useState(0);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [apiType, setApiType] = useState('blog'); // default는 블로그
 
-    const handleSearch = async () => {
-        const res = await fetch(`/api/search?query=${input}`);
+    const ITEMS_PER_PAGE = 10;  // 페이지 당 호출 개수
+
+    const handleSearch = async (page: number) => {
+        const start = (page - 1) * ITEMS_PER_PAGE + 1;
+        const res = await fetch(`/api/search?query=${encodeURIComponent(input)}&start=${start}&display=${ITEMS_PER_PAGE}&apiType=${apiType}`);
         const data = await res.json();
-        console.log("====================");
-        console.log(data);
-        console.log("====================");
-        setResults(data.items);
+        if (data.items) {
+            setResults(data.items);
+            setTotal(data.total);
+            setCurrentPage(page);
+            // console.log(data);
+        }
     };
+
+    const handleKeyPress = useCallback((e: KeyboardEvent) => {
+        if (e.key === 'Enter') {
+            handleSearch(1);
+        }
+    }, [handleSearch]);
+
+
+    useEffect(() => {
+        document.addEventListener('keypress', handleKeyPress);
+        return () => {
+            document.removeEventListener('keypress', handleKeyPress);
+        };
+    }, [handleKeyPress]);
+
+    const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
 
     return (
         <div className="w-full">
@@ -26,17 +62,23 @@ export default function Home() {
                 <h1 className={`${lusitana.className} text-2xl`}>네이버 검색</h1>
             </div>
             <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
-                <input value={input} onChange={(e) => setInput(e.target.value)} />
-                <button onClick={handleSearch}>검색</button>
-                
-
+                <select className="block w-1/2 rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-1" value={apiType} onChange={(e) => setApiType(e.target.value)}>
+                    <option value="blog">Blog</option>
+                    <option value="news">News</option>
+                    <option value="book">Book</option>
+                    <option value="cafearticle">카페 글</option>
+                    <option value="kin">지식인</option>
+                </select>
+                <input className='peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500' value={input} onChange={(e) => setInput(e.target.value)} />
+                <button className='flex h-10 items-center rounded-lg bg-red-600 px-4 text-sm font-medium text-white transition-colors hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600' onClick={() => handleSearch(1)}>Search</button>
             </div>
             <div className="mt-5 flex w-full justify-center">
-                <ul>
-                    {results.map((item, index) => (
-                        <li key={index}>{item.title}</li>
-                    ))}
-                </ul>
+                <SearchResultsTable results={results} currentPage={currentPage} />
+            </div>
+            <div className="mt-5 flex w-full justify-center">
+                {totalPages > 1 && (
+                    <Pagination totalPages={totalPages} currentPage={currentPage} onPageChange={handleSearch} itemsPerPage={ITEMS_PER_PAGE} />
+                )}
             </div>
         </div>
     );

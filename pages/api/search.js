@@ -1,10 +1,12 @@
 import axios from 'axios';
 
 export default async (req, res) => {
-    const { query } = req.query;
+    const { query, start, apiType } = req.query;
+    const apiUrl = `https://openapi.naver.com/v1/search/${apiType}.json`
+
     try {
-        const { data } = await axios.get(`https://openapi.naver.com/v1/search/blog.json`, {
-            params: { query: query, display: 10 },
+        const { data } = await axios.get(apiUrl, {
+            params: { query: query, start: start, display: 10 },
             headers: {
                 'X-Naver-Client-Id': process.env.NAVER_CLIENT_ID,
                 'X-Naver-Client-Secret': process.env.NAVER_CLIENT_SECRET
