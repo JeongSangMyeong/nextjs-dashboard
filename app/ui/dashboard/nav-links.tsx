@@ -4,7 +4,10 @@ import {
   UserGroupIcon,
   HomeIcon,
   DocumentDuplicateIcon,
-  BookOpenIcon
+  BookOpenIcon,
+  ChartBarIcon,
+  ArchiveBoxIcon,
+  AcademicCapIcon
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -21,6 +24,7 @@ const links = [
   },
   { name: 'Customers', href: '/dashboard/customers', icon: UserGroupIcon },
   { name: 'NaverSearch', href: '/dashboard/naver', icon: BookOpenIcon },
+  { name: 'Employee', href: '/dashboard/employee', icon: AcademicCapIcon },
 ];
 
 export default function NavLinks() {

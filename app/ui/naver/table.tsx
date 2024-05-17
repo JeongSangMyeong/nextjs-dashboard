@@ -60,7 +60,7 @@ export default function SearchResultsTable({ results, currentPage, apiType, disp
                                                 {col.key.includes('link') ? (
                                                     <a href={item[col.key]} className="text-blue-500 hover:underline" target="_blank" rel="noopener noreferrer">{item[col.key]}</a>
                                                 ) : col.key === 'image' ? (
-                                                    <img src={item[col.key]} alt="Thumbnail" width={100} height={100} />
+                                                    <img src={item[col.key]} alt="Thumbnail" width={500} height={600} />
                                                 ) : col.key === 'postdate' || col.key === 'pubDate' || col.key === 'pubdate' ? (
                                                     formatDate(item[col.key])
                                                 ) : (
